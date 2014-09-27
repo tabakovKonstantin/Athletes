@@ -1,4 +1,3 @@
-
 data = read_data(file_name)
 
 data_transpose = data.table(t(data))
@@ -13,11 +12,8 @@ if(!is.null(num_last_column)) {
 
 dataset = work_with_data(data_transpose_cat)
 
-должно быть строк после обработки 42 length(final_data_list[[1]])
+names(dataset) = as.vector(data$V1)[2 : nrow(data)] 
 
-загрузка
-переворот
-обрезка 
-добавления таргета
-усреднение одинаковых
-обьеденение со всеми 
+dataset[1 : nrow(dataset), target :=  target_name]
+
+write.csv2(dataset, file = result_dataset_name, row.names = FALSE)
