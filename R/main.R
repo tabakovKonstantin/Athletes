@@ -12,7 +12,7 @@ if(!is.null(num_last_column)) {
 
 dataset = work_with_data(data_transpose_cat)
 
-names(dataset) = as.vector(data$V1)[2 : nrow(data)] 
+names(dataset) = as.vector(data$V1)[2 : length(data_transpose_cat)] 
 
 dataset[1 : nrow(dataset), target :=  target_name]
 
