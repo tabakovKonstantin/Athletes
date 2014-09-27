@@ -6,7 +6,7 @@ read_data = function(file_name) {
 search_last_column = function(data_table) {
   count_row = nrow(data_table)
   data_table_list = as.list.data.frame(data_table)
- 
+  
   for(i in 1:length(data_table_list)) {
     count_emptu_row = 0
     for(j in 1:count_row) {
@@ -35,7 +35,7 @@ work_with_data = function(data_table) {
   
   for(name in names_athletes) {    ## идем по все уникальным именам спортсменов
     
-    print(paste(name, which( data_list[[1]] == name)))
+    #print(paste(name, which( data_list[[1]] == name)))
     vector_number_row = which( data_list[[1]] == name)    ## вектор содержит номера строк, где поворяется имя "name"
     
     tmp = c()    ## временный вектор для строки в будущей таблицы
@@ -51,12 +51,18 @@ work_with_data = function(data_table) {
         tmp_value_vector = c(tmp_value_vector, tmp_value)    ## добавляем в вектор в котором будут все значения одного стобца для одного спортсмена
       } 
       
+      #print(str(tmp_value_vector))
+      if(is.na(tmp_value)) {
+        print(paste("!!!!", paste(ind_row, ind_column)))
+      }
       tmp = c(tmp, mean(tmp_value_vector))    ## усредняем значения в векторе tmp_value и добавляем его в tmp те получаем новое значение строки
+      ##print(tmp)
       
     }
     
     final_data_list[[count]] = tmp    ## записываем в лист 
     count = count + 1
+    print(name)
     
   }
   
