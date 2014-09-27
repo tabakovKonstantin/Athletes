@@ -19,3 +19,47 @@ search_last_column = function(data_table) {
     }
   }
 }
+
+
+data_table = data_transpose_cat
+
+work_with_data = function(data_table) {
+  
+  data_list = as.list.data.frame(data_table)    ## переводим таблицу в список, для удобства и быстроты использования
+  final_data_list = list()    ## список для преобразования в таблицу
+  
+  names_athletes = unique(as.vector(data_list[[1]])[which( data_list[[1]] != "")])    ## получаем имена уникальных спортсменов
+  final_data_list[[1]] = names_athletes    ## добавляем их в первую позицию листа
+  
+  count = 2    ## счетчик показывает в какую позицию списка записывыть tmp
+  
+  for(name in names_athletes) {    ## идем по все уникальным именам спортсменов
+    
+    print(paste(name, which( data_list[[1]] == name)))
+    vector_number_row = which( data_list[[1]] == name)    ## вектор содержит номера строк, где поворяется имя "name"
+    
+    tmp = c()    ## временный вектор для строки в будущей таблицы
+    
+    for(ind_column in 3 : length(data_list) ) {    ## проходим по всем столбцам таблици
+      
+      tmp_value_vector = c()    ## вектор в котором содержится значения из разных строк таблицы одного столбца
+      
+      for(ind_number in 1 : length(vector_number_row)) {    ## проходим по всем строкам у которых одинаковый name
+        ind_row = vector_number_row[ind_number]    ## номер строки в таблице
+        
+        tmp_value = as.numeric(as.vector(data_list[[ind_column]][ind_row]))    ##значение фиксированного столбца и строки
+        tmp_value_vector = c(tmp_value_vector, tmp_value)    ## добавляем в вектор в котором будут все значения одного стобца для одного спортсмена
+      } 
+      
+      tmp = c(tmp, mean(tmp_value_vector))    ## усредняем значения в векторе tmp_value и добавляем его в tmp те получаем новое значение строки
+      
+    }
+    
+    final_data_list[[count]] = tmp    ## записываем в лист 
+    count = count + 1
+    
+  }
+  
+  return(do.call(data.table,final_data_list))
+  
+}
