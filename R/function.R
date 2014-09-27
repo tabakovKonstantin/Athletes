@@ -33,7 +33,7 @@ work_with_data = function(data_table) {
   for(name in names_athletes) {    ## идем по все уникальным именам спортсменов
     
     #print(paste(name, which( data_list[[1]] == name)))
-    vector_number_row = which( data_list[[1]] == name)    ## вектор содержит номера строк, где поворяется имя "name"
+    vector_number_row = which( str_trim(data_list[[1]], side = "both") == name)    ## вектор содержит номера строк, где поворяется имя "name"
     
     tmp_row = c()    ## временный вектор для строки в будущей таблицы
     tmp_row = c(tmp_row, name)
