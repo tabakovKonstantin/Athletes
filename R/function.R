@@ -60,3 +60,67 @@ work_with_data = function(data_table) {
   return(result_data_table)
   
 }
+
+data_preparation = function() {
+  
+  names_file_list = list.files(path = path_input_data)    ## получаем список файлов из директории с входными данными
+  
+  for(name_file in names_file_list) {
+    
+    data = read_data(paste(path_input_data, name_file, sep = "/"))
+    
+    data_transpose = data.table(t(data))    ## транспонируем таблицу для удобства
+    
+    num_last_column = search_last_column(data_transpose)    ## посчитываем колличество значищих столбцов в талице
+    
+    if(!is.null(num_last_column)) {    ## если есть пустые столбцы, то обрезаем их
+      data_transpose_cat = subset(data_transpose, select = names(data_transpose)[1:num_last_column])
+    } else {
+      data_transpose_cat = data_transpose    ## если пустых столбцов нету
+    }
+    
+    dataset = work_with_data(data_transpose_cat)    ## объеденяем строки
+    
+    names(dataset) = as.vector(data$V1)[2 : length(data_transpose_cat)]    ## переименовываем столбцы 
+    
+    target_name = str_split(name_file, ".csv", n = Inf)[[1]][1]    ## добавляем целевой столбец, значение которого это имя файла без разширения
+    
+    dataset[1 : nrow(dataset), target :=  target_name]
+    
+    output_file_name = paste(path_output_data, paste("DataSet", name_file, sep = " "), sep = "/")    ## сохраняем получившуюся таблицу в папку выходных данных, добавляя при этом к имени файла "Dataset"
+    
+    write.csv2(dataset, file = output_file_name, row.names = FALSE)
+    
+    #   View(dataset)
+    
+  }
+}
+
+row_bind = function() {
+
+  names_file_list = list.files(path = path_output_data, pattern = "^DataSet")    ## выбираем из директории только файлы начинающиеся с "Dataset"
+  flag_first_file = TRUE    ## флаг показывающий что произошла загрузка первой таблицы
+  
+  for(name_file in names_file_list) {
+    
+#     print(name_file)
+    tmp_dataset = data.table( read.csv2(paste(path_output_data, name_file, sep = "/")))
+    
+    if(flag_first_file) {
+      
+      flag_first_file = FALSE
+      Full_dataset = data.table(tmp_dataset)
+      
+    } else {
+      
+      tmp_dataset_list = as.list.data.frame(tmp_dataset)
+      Full_dataset = rbind(Full_dataset, tmp_dataset_list)    ## добавляем загруженную таблицу
+      
+    }
+    
+  }
+  
+#   View(Full_dataset)
+  return(Full_dataset)
+
+}
