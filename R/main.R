@@ -1,31 +1,12 @@
-# data = read_data(file_name)
-# 
-# data_transpose = data.table(t(data))
-# 
-# num_last_column = search_last_column(data_transpose)
-# 
-# if(!is.null(num_last_column)) { 
-#   data_transpose_cat = subset(data_transpose, select = names(data_transpose)[1:num_last_column])
-# } else {
-#   data_transpose_cat = data_transpose 
-# }
-# 
-# dataset = work_with_data(data_transpose_cat)
-# 
-# names(dataset) = as.vector(data$V1)[2 : length(data_transpose_cat)] 
-# 
-# dataset[1 : nrow(dataset), target :=  target_name]
-# 
-# write.csv2(dataset, file = result_dataset_name, row.names = FALSE)
-# 
-# View(dataset)
-
+## First stage ##
 data_preparation()
 full_data = row_bind()
+
 View(full_data)
+
 write.csv2(full_data, paste(path_output_data, "Full Dataset.csv", sep = "/"), row.names = FALSE)
 
-#########################
+## Second stage ##
 full_data = data.table(read.csv2(paste(path_output_data, "Full Dataset.csv", sep = "/")))
 
 full_data_list = as.list.data.frame(full_data)
@@ -37,9 +18,29 @@ for(i in 2 : (length(full_data_list)- 1)  ) {    ## исправить на од
 }
 
 full_data_table = do.call(data.table, full_data_list)
+full_data = full_data_table
 
-#######################################
-size_train_data = round(nrow(full_data) * 0.4)
+names_row = unique(full_data$Name.)
+names = c()
+
+for(name_row in names_row) {
+  count_rep = length(which(full_data$Name. == name_row))
+  if(count_rep == 1) {
+    names = c(names, name_row)
+  } else {
+    for(i in 1 : count_rep) {
+      new_name_row = paste(name_row, i, sep = "_")
+      names = c(names, new_name_row)
+      print(new_name_row)
+    }
+  }
+}
+
+row.names(full_data) = names
+
+## Third stage ##
+coef_size = 0.4
+size_train_data = round(nrow(full_data) * coef_size)
 
 train_data_row = sample(1 : nrow(full_data), size_train_data) 
 testing_data_row = setdiff(1:nrow(full_data), train_data_row)
@@ -47,20 +48,29 @@ testing_data_row = setdiff(1:nrow(full_data), train_data_row)
 train_data = full_data[train_data_row,]
 testing_data = full_data[testing_data_row,]
 
-modelRF = randomForest(target ~ . - Name., full_data_table, na.action = na.omit)
+unique_class = unique(train_data$target)
+count_element_class = c()
 
+for(class in unique_class) {
+  count_element_class = c(count_element_class, length(which(train_data$target == class)))
+}
 
-# full_data_list = as.list.data.frame(full_data)
-# 
-# for(i in 2 : (length(full_data_list)- 1)  ) {    ## исправить на один когда будут имена обьектов
-#   tmp_column = full_data_list[[i]]
-#   tmp_column_numeric = as.double(as.vector(tmp_column))
-#   full_data_list[[i]] = tmp_column_numeric
-# }
-# 
-# full_data_table = do.call(data.table, full_data_list)
+min_size_class = rep(min(count_element_class), length(unique_class))
 
+modelRF = randomForest(target ~ . - Name., train_data, na.action = na.omit, sampsize = min_size_class)    ## sampsize параметр распределяющий количество элементов в классе? 
 
+predicted_value = predict(modelRF, testing_data) 
+real_value = testing_data$target
 
-  
-  
+## Fourth stage ##
+num_row_with_error = which(predicted_value != real_value)
+
+count_error = length(num_row_with_error)
+procent_error = (count_error * 100) / length(real_value)
+
+table(real_value[num_row_with_error], predicted_value[num_row_with_error])    ## по горизонтали предсказанные значения 
+
+modelRF
+
+importance(modelRF)
+sort(importance(modelRF))
