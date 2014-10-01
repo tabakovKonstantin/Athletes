@@ -153,3 +153,33 @@ get_probability = function(x) {
   
 }
 
+get_expectation = function(x) {
+  
+  prob_table = get_probability(x)
+  
+  value_vec = as.numeric(names(prob_table))
+  
+  return(sum(prob_table * value_vec))
+}
+
+get_var = function(x) {
+  
+  prob_table = get_probability(x)
+  expectation = get_expectation(prob_table)
+  expectation_vec = rep( expectation, length(prob_table))
+  
+  value_vec = as.numeric(names(prob_table))
+  
+  var = sum(prob_table * (value_vec - expectation_vec)^2)
+  
+  return(var)
+  
+}
+
+get_sd = function(x) {
+  
+  var = get_var(x)
+  
+  return(sqrt(var))
+}
+
