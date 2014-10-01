@@ -124,3 +124,32 @@ row_bind = function() {
   return(Full_dataset)
 
 }
+
+
+get_probability = function(x) {
+  
+  freq_table = table(x)
+  prop_table = freq_table
+  
+  if(length( unique(x) ) == 1) {
+    
+    for(j in 1 : length(freq_table) ) {
+      prop_table[j] = 1 / length(x) 
+    }
+    
+  } else {
+    
+    for(i in 1:length(x)) {
+      
+      position_value_in_freq_table = which(as.numeric(names(freq_table)) == x[i])
+      p = freq_table[[position_value_in_freq_table]][1] * (1 / length(x))
+      
+      prop_table[[position_value_in_freq_table]][1] = p
+      
+    }
+  }
+  
+  return(prop_table)
+  
+}
+
