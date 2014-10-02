@@ -49,7 +49,17 @@ work_with_data = function(data_table) {
         tmp_value_vector = c(tmp_value_vector, tmp_value)    ## добавляем в вектор в котором будут все значения одного стобца для одного спортсмена
       } 
       
-      tmp_row = c(tmp_row, mean(tmp_value_vector))    ## усредняем значения в векторе tmp_value и добавляем его в tmp_row те получаем новое значение строки
+      tmp_value_vector = as.vector(na.omit(tmp_value_vector))    ## костыль убирающий NA
+      
+      expectation = get_expectation(tmp_value_vector)
+      tmp_row = c(tmp_row, expectation)
+      
+      var = get_var(tmp_value_vector)
+      tmp_row = c(tmp_row, var)
+      
+      sd = get_sd(tmp_value_vector)
+      tmp_row = c(tmp_row, sd)
+#       tmp_row = c(tmp_row, mean(tmp_value_vector))    ## усредняем значения в векторе tmp_value и добавляем его в tmp_row те получаем новое значение строки
       
     }
     
@@ -165,7 +175,7 @@ get_expectation = function(x) {
 get_var = function(x) {
   
   prob_table = get_probability(x)
-  expectation = get_expectation(prob_table)
+  expectation = get_expectation(x)
   expectation_vec = rep( expectation, length(prob_table))
   
   value_vec = as.numeric(names(prob_table))
