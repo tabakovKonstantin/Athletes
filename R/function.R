@@ -51,14 +51,27 @@ work_with_data = function(data_table) {
       
       tmp_value_vector = as.vector(na.omit(tmp_value_vector))    ## костыль убирающий NA
       
-      expectation = get_expectation(tmp_value_vector)
-      tmp_row = c(tmp_row, expectation)
-      
-      var = get_var(tmp_value_vector)
-      tmp_row = c(tmp_row, var)
-      
-      sd = get_sd(tmp_value_vector)
-      tmp_row = c(tmp_row, sd)
+      if(length(tmp_value_vector) != 0) {
+        
+        expectation = get_expectation(tmp_value_vector)
+        tmp_row = c(tmp_row, expectation)
+        
+        var = get_var(tmp_value_vector)
+        tmp_row = c(tmp_row, var)
+        
+        sd = get_sd(tmp_value_vector)
+        tmp_row = c(tmp_row, sd)
+        
+      } else {
+        expectation = 0
+        tmp_row = c(tmp_row, expectation)
+        
+        var = 0
+        tmp_row = c(tmp_row, var)
+        
+        sd = 0
+        tmp_row = c(tmp_row, sd)
+      }
 #       tmp_row = c(tmp_row, mean(tmp_value_vector))    ## усредняем значения в векторе tmp_value и добавляем его в tmp_row те получаем новое значение строки
       
     }
@@ -91,7 +104,20 @@ data_preparation = function() {
     
     dataset = work_with_data(data_transpose_cat)    ## объеденяем строки
     
-    names(dataset) = as.vector(data$V1)[2 : length(data_transpose_cat)]    ## переименовываем столбцы 
+    old_names = as.vector(data$V1)[2 : length(data_transpose_cat)]
+    new_names = c()
+    for(i in  1 : length(old_names)) {
+      if(i == 1) {
+        new_names = c(new_names, old_names[i])
+      } else {
+        new_names = c(new_names, paste(old_names[i], "exp", sep = "_") )
+        new_names = c(new_names, paste(old_names[i], "var", sep = "_"))
+        new_names = c(new_names, paste(old_names[i], "sd", sep = "_"))
+      }
+    }
+    
+    #     names(dataset) = as.vector(data$V1)[2 : length(data_transpose_cat)]    ## переименовываем столбцы 
+    names(dataset) = new_names    
     
     target_name = str_split(name_file, ".csv", n = Inf)[[1]][1]    ## добавляем целевой столбец, значение которого это имя файла без разширения
     
