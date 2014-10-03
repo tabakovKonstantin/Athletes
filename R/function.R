@@ -30,12 +30,14 @@ work_with_data = function(data_table) {
   names_athletes = str_trim(names_athletes, side = "both")    ## удаляем пробелы на концах   
   names_athletes = unique(names_athletes)    ## оставляем уникальные имена
   
+  row_with_space = c()    ## номера строк которые нужно удалить так как они содержат пробелы
+  
   for(name in names_athletes) {    ## идем по все уникальным именам спортсменов
     
     #print(paste(name, which( data_list[[1]] == name)))
     vector_number_row = which( str_trim(data_list[[1]], side = "both") == name)    ## вектор содержит номера строк, где поворяется имя "name"
     
-    row_with_space = c()    ## номера строк которые нужно удалить так как они содержат пробелы
+    
     tmp_row = c()    ## временный вектор для строки в будущей таблицы
     tmp_row = c(tmp_row, name)
     
@@ -93,7 +95,9 @@ work_with_data = function(data_table) {
       } else {
         
         row_with_space = c(row_with_space, ind_row)
-        
+        print(ind_row)
+        print(ind_column)
+        print(name)
         expectation = 0
         tmp_row = c(tmp_row, expectation)
         
