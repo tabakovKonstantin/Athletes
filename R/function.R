@@ -35,6 +35,7 @@ work_with_data = function(data_table) {
     #print(paste(name, which( data_list[[1]] == name)))
     vector_number_row = which( str_trim(data_list[[1]], side = "both") == name)    ## вектор содержит номера строк, где поворяется имя "name"
     
+    row_with_space = c()    ## номера строк которые нужно удалить так как они содержат пробелы
     tmp_row = c()    ## временный вектор для строки в будущей таблицы
     tmp_row = c(tmp_row, name)
     
@@ -46,6 +47,11 @@ work_with_data = function(data_table) {
         ind_row = vector_number_row[ind_number]    ## номер строки в таблице
         
         tmp_value = as.numeric(as.vector(data_list[[ind_column]][ind_row]))    ##значение фиксированного столбца и строки
+        
+        #         if(is.na(tmp_value)) {
+        #           row_with_space = c(row_with_space, ind_row)
+        #         }
+        
         tmp_value_vector = c(tmp_value_vector, tmp_value)    ## добавляем в вектор в котором будут все значения одного стобца для одного спортсмена
       } 
       
@@ -56,29 +62,73 @@ work_with_data = function(data_table) {
         expectation = get_expectation(tmp_value_vector)
         tmp_row = c(tmp_row, expectation)
         
+        
+#         print(name)
+#         print(ind_column)
+#         print(tmp_value_vector)
+        
+        moment_2 = get_expectation((tmp_value_vector)^2)
+        tmp_row = c(tmp_row, moment_2)
+        
+        
+        
+        moment_3 = get_expectation((tmp_value_vector)^3)
+        tmp_row = c(tmp_row, moment_3)
+        
         var = get_var(tmp_value_vector)
         tmp_row = c(tmp_row, var)
         
         sd = get_sd(tmp_value_vector)
         tmp_row = c(tmp_row, sd)
         
+        median = median(tmp_value_vector)
+        tmp_row = c(tmp_row, median)
+        
+        min = min(tmp_value_vector)
+        tmp_row = c(tmp_row, min)
+        
+        max = max(tmp_value_vector)
+        tmp_row = c(tmp_row, max)
+        
       } else {
+        
+        row_with_space = c(row_with_space, ind_row)
+        
         expectation = 0
         tmp_row = c(tmp_row, expectation)
+        
+        moment_2 = 0
+        tmp_row = c(tmp_row, moment_2)
+        
+        moment_3 = 0
+        tmp_row = c(tmp_row, moment_3)
         
         var = 0
         tmp_row = c(tmp_row, var)
         
         sd = 0
         tmp_row = c(tmp_row, sd)
+        
+        median = 0
+        tmp_row = c(tmp_row, median)
+        
+        min = 0
+        tmp_row = c(tmp_row, min)
+        
+        max = 0
+        tmp_row = c(tmp_row, max)
       }
-#       tmp_row = c(tmp_row, mean(tmp_value_vector))    ## усредняем значения в векторе tmp_value и добавляем его в tmp_row те получаем новое значение строки
+      #       tmp_row = c(tmp_row, mean(tmp_value_vector))    ## усредняем значения в векторе tmp_value и добавляем его в tmp_row те получаем новое значение строки
       
     }
     
     result_data_table = rbind(result_data_table, as.list(tmp_row))
     
   }
+  
+  print(paste("row with space ", length(row_with_space)))
+  result_data_table = result_data_table[setdiff(1:nrow(result_data_table), row_with_space),]
+  
   
   return(result_data_table)
   
@@ -111,8 +161,13 @@ data_preparation = function() {
         new_names = c(new_names, old_names[i])
       } else {
         new_names = c(new_names, paste(old_names[i], "exp", sep = "_") )
+        new_names = c(new_names, paste(old_names[i], "mom2", sep = "_") )
+        new_names = c(new_names, paste(old_names[i], "mom3", sep = "_"))
         new_names = c(new_names, paste(old_names[i], "var", sep = "_"))
         new_names = c(new_names, paste(old_names[i], "sd", sep = "_"))
+        new_names = c(new_names, paste(old_names[i], "median", sep = "_") )
+        new_names = c(new_names, paste(old_names[i], "min", sep = "_"))
+        new_names = c(new_names, paste(old_names[i], "max", sep = "_"))
       }
     }
     
@@ -133,13 +188,13 @@ data_preparation = function() {
 }
 
 row_bind = function() {
-
+  
   names_file_list = list.files(path = path_output_data, pattern = "^DataSet")    ## выбираем из директории только файлы начинающиеся с "Dataset"
   flag_first_file = TRUE    ## флаг показывающий что произошла загрузка первой таблицы
   
   for(name_file in names_file_list) {
     
-#     print(name_file)
+    #     print(name_file)
     tmp_dataset = data.table( read.csv2(paste(path_output_data, name_file, sep = "/")))
     
     if(flag_first_file) {
@@ -156,9 +211,9 @@ row_bind = function() {
     
   }
   
-#   View(Full_dataset)
+  #   View(Full_dataset)
   return(Full_dataset)
-
+  
 }
 
 
@@ -177,7 +232,7 @@ get_probability = function(x) {
     
     for(i in 1:length(x)) {
       
-      position_value_in_freq_table = which(as.numeric(names(freq_table)) == x[i])
+      position_value_in_freq_table = which((names(freq_table)) == as.character(x[i]))
       p = freq_table[[position_value_in_freq_table]][1] * (1 / length(x))
       
       prop_table[[position_value_in_freq_table]][1] = p
