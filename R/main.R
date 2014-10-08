@@ -20,26 +20,48 @@ for(i in 2 : (length(full_data_list)- 1)  ) {    ## исправить на од
 full_data_table = do.call(data.table, full_data_list)
 full_data = full_data_table
 
-names_row = unique(full_data$Name.)
-names = c()
-
-for(name_row in names_row) {
-  count_rep = length(which(full_data$Name. == name_row))
-  if(count_rep == 1) {
-    names = c(names, name_row)
-  } else {
-    for(i in 1 : count_rep) {
-      new_name_row = paste(name_row, i, sep = "_")
-      names = c(names, new_name_row)
-      print(new_name_row)
-    }
-  }
-}
-
-row.names(full_data) = names
+# names_row = unique(full_data$Name.)
+# names = c()
+# 
+# for(name_row in names_row) {
+#   count_rep = length(which(full_data$Name. == name_row))
+#   if(count_rep == 1) {
+#     names = c(names, name_row)
+#   } else {
+#     for(i in 1 : count_rep) {
+#       new_name_row = paste(name_row, i, sep = "_")
+#       names = c(names, new_name_row)
+#       print(new_name_row)
+#     }
+#   }
+# }
+# 
+# row.names(full_data) = names
 
 ## Third stage ##
-coef_size = 0.4
+
+## AdDel ##
+
+## Input ##
+all_sign = setdiff(names(full_data), "Name.")
+start_points = sample(all_sign, 10)
+steps_forward = 3
+steps_back = 2
+nameFun = "QSARF_target"
+max_step = 2
+limit_step = 1
+iterate_vicinity = 20
+
+path_to_log = "E:/Work/R/Athletes/output_data/log"
+name_folder  = "target_9_with_sampSize"                    
+
+## Eval ##
+ptm = proc.time()
+model_predict_industry_id = algorithm_AdDel(all_sign, start_points, steps_forward, steps_back, nameFun, max_step, limit_step, iterate_vicinity) 
+proc.time() - ptm
+
+
+coef_size = 0.8
 size_train_data = round(nrow(full_data) * coef_size)
 
 train_data_row = sample(1 : nrow(full_data), size_train_data) 
