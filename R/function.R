@@ -65,9 +65,9 @@ work_with_data = function(data_table) {
         tmp_row = c(tmp_row, expectation)
         
         
-#         print(name)
-#         print(ind_column)
-#         print(tmp_value_vector)
+        #         print(name)
+        #         print(ind_column)
+        #         print(tmp_value_vector)
         
         moment_2 = get_expectation((tmp_value_vector)^2)
         tmp_row = c(tmp_row, moment_2)
@@ -276,5 +276,37 @@ get_sd = function(x) {
   var = get_var(x)
   
   return(sqrt(var))
+}
+
+
+rationing = function(data, fun) {
+  
+  data.list = as.data.frame.list(data)
+  
+  for(column in 2 : (length(data.list) - 1)) {
+    
+    value_column =  do.call(fun, data.list[column])
+    data.list[column] = data.list[[column]] / value_column
+    
+  }  
+  
+  output_file_name = paste(path_output_data, paste("rationing_column", "_", fun, ".csv", sep = ""), sep = "/")
+  write.csv2(data.list, file = output_file_name, row.names = FALSE)
+  
+  for(row in 1 : length(data.list[[1]])) {
+    
+    data.without.target.and.name = subset(data.list, select = setdiff(names(data), c("target", "Name.")))
+    value.row =  do.call(fun, data.without.target.and.name[1,])
+    
+    for(column in 2 : (length(data.list) - 1)) {
+      
+      data.list[[column]][row] = data.list[[column]][row] / value.row  
+      
+    }  
+  }
+  
+  output_file_name = paste(path_output_data, paste("rationing_row", "_", fun, ".csv", sep = ""), sep = "/")
+  write.csv2(data.list, file = output_file_name, row.names = FALSE) 
+  
 }
 
